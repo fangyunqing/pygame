@@ -4,6 +4,7 @@ from overlay.overlay import Overlay
 from player.player import Player
 from sprites import Generic
 from settings.settings import *
+from pytmx.util_pygame import load_pygame
 
 
 class Level:
@@ -13,6 +14,21 @@ class Level:
 
         # sprite groups
         self.all_sprites = CameraGroup()
+
+        tmx_data = load_pygame(r"/Users/fyq/PycharmProjects/pygame/data/map.tmx")
+
+        # house
+        for layer in ["HouseFloor", "HouseFurnitureBottom"]:
+            for x, y, suf in tmx_data.get_layer_by_name(layer).tiles():
+                Generic((x * TILE_SIZE, y * TILE_SIZE), suf, self.all_sprites, LAYERS["house bottom"])
+
+        for layer in ["HouseWalls", "HouseFurnitureTop"]:
+            for x, y, suf in tmx_data.get_layer_by_name(layer).tiles():
+                Generic((x * TILE_SIZE, y * TILE_SIZE), suf, self.all_sprites, LAYERS["main"])
+
+        for x, y, suf in tmx_data.get_layer_by_name("Fence").tiles():
+            Generic((x * TILE_SIZE, y * TILE_SIZE), suf, self.all_sprites, LAYERS["main"])
+
 
         Generic(pos=(0, 0),
                 suf=(pygame.image.load(r"/Users/fyq/PycharmProjects/pygame/graphics/world/ground.png")
@@ -46,8 +62,4 @@ class CameraGroup(pygame.sprite.Group):
                 if layer == sprite.z:
                     offset_rect = sprite.rect.copy()
                     offset_rect.center -= self.offset
-                    if layer == 7:
-                        print(offset_rect)
-                        print(self.offset)
                     self.display_surface.blit(sprite.image, offset_rect)
-
