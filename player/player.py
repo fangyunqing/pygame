@@ -19,7 +19,7 @@ class Player(pygame.sprite.Sprite):
                            'right_axe': [], 'left_axe': [], 'up_axe': [], 'down_axe': [],
                            'right_water': [], 'left_water': [], 'up_water': [], 'down_water': []
                            }
-        image_path = r"/Users/fyq/PycharmProjects/pygame/graphics/character"
+        image_path = r"graphics/character"
         for animation in self.animations:
             self.animations[animation] = import_folder(image_path + os.sep + animation)
 

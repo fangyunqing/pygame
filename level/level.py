@@ -2,9 +2,11 @@ import pygame
 
 from overlay.overlay import Overlay
 from player.player import Player
-from sprites import Generic
+from sprites import Generic, Water, WildFlower, Tree
 from settings.settings import *
 from pytmx.util_pygame import load_pygame
+
+from util import import_folder
 
 
 class Level:
@@ -15,7 +17,7 @@ class Level:
         # sprite groups
         self.all_sprites = CameraGroup()
 
-        tmx_data = load_pygame(r"/Users/fyq/PycharmProjects/pygame/data/map.tmx")
+        tmx_data = load_pygame(r"data/map.tmx")
 
         # house
         for layer in ["HouseFloor", "HouseFurnitureBottom"]:
@@ -26,12 +28,24 @@ class Level:
             for x, y, suf in tmx_data.get_layer_by_name(layer).tiles():
                 Generic((x * TILE_SIZE, y * TILE_SIZE), suf, self.all_sprites, LAYERS["main"])
 
+        # fence
         for x, y, suf in tmx_data.get_layer_by_name("Fence").tiles():
             Generic((x * TILE_SIZE, y * TILE_SIZE), suf, self.all_sprites, LAYERS["main"])
 
+        # water
+        for x, y, suf in tmx_data.get_layer_by_name("Water").tiles():
+            Water((x * TILE_SIZE, y * TILE_SIZE), import_folder("graphics/water"), self.all_sprites)
+
+        # wildFlower
+        for obj in tmx_data.get_layer_by_name("Decoration"):
+            WildFlower((obj.x, obj.y), obj.image, self.all_sprites)
+
+        # tree
+        for obj in tmx_data.get_layer_by_name("Trees"):
+            Tree((obj.x, obj.y), obj.image, self.all_sprites, obj.name)
 
         Generic(pos=(0, 0),
-                suf=(pygame.image.load(r"/Users/fyq/PycharmProjects/pygame/graphics/world/ground.png")
+                suf=(pygame.image.load(r"graphics/world/ground.png")
                      .convert_alpha()),
                 group=self.all_sprites,
                 z=LAYERS["ground"])
@@ -58,7 +72,7 @@ class CameraGroup(pygame.sprite.Group):
         self.offset.x = player.rect.centerx - SCREEN_WIDTH / 2
         self.offset.y = player.rect.centery - SCREEN_HEIGHT / 2
         for layer in LAYERS.values():
-            for sprite in self.sprites():
+            for sprite in sorted(self.sprites(), key=lambda s: s.rect.centery):
                 if layer == sprite.z:
                     offset_rect = sprite.rect.copy()
                     offset_rect.center -= self.offset

@@ -25,5 +25,6 @@ class Game:
             pygame.display.update()
 
 
-game = Game()
-game.run()
+if __name__ == "__main__":
+    game = Game()
+    game.run()
